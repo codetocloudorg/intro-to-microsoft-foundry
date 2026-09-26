@@ -111,9 +111,20 @@ Findings: 8 (7 warning · 1 info)
   production landing zone. For that, see
   [Azure AI Landing Zones](https://github.com/Azure/AI-Landing-Zones).
 
+## Where to go next
+
+- **See where your organization stands.** The free
+  [Agentic AI Readiness Scorecard](https://codetocloud.io/agentic-ai-scorecard/?utm_source=github&utm_medium=readme&utm_campaign=intro-foundry-workshop)
+  takes a few minutes and needs no email.
+- **Go from workshop to platform.** Our write-up of the
+  [Azure AI Landing Zones design checklist](https://codetocloud.io/blog/azure-ai-landing-zones/?utm_source=github&utm_medium=readme&utm_campaign=intro-foundry-workshop)
+  covers identity, networking and policy.
+- **Run this with your team.** We deliver it as a working session on your own use case.
+  [Book a discovery call](https://calendly.com/kevin-evans-codetocloud/intro-sync?utm_source=github&utm_medium=readme&utm_campaign=intro-foundry-workshop).
+
 ## About
 
-Built by [Code To Cloud](https://codetocloud.io), an agentic DevOps and cloud advisory practice in
-Calgary, Alberta. The story behind it:
-[Microsoft Foundry solution accelerators by industry](https://codetocloud.io/blog/foundry-solution-accelerators-by-industry/).
+Built by [Code To Cloud](https://codetocloud.io/?utm_source=github&utm_medium=readme&utm_campaign=intro-foundry-workshop),
+an agentic DevOps and cloud advisory practice in Calgary, Alberta. The write-up:
+[A Hands-On Introduction to Microsoft Foundry](https://codetocloud.io/blog/introduction-to-microsoft-foundry-workshop/?utm_source=github&utm_medium=readme&utm_campaign=intro-foundry-workshop).
 Issues and pull requests are welcome. Licensed under the MIT License.
