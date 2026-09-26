@@ -28,6 +28,8 @@ This installs `azure-ai-projects` 2.x, the **Foundry projects (new) API**. Micro
 2.x is incompatible with 1.x, so if an environment already pins an older version, use a fresh virtual
 environment.
 
+**Check:** `pip list` shows `azure-ai-projects` 2.x.
+
 ## 2. Deploy the environment
 
 `infra/main.bicep` creates one Foundry resource, one project and one `gpt-5-mini` deployment in the
@@ -47,6 +49,8 @@ az group create -n rg-foundry-workshop -l eastus2
 az deployment group create -g rg-foundry-workshop --template-file infra/main.bicep \
   --parameters principalId=$(az ad signed-in-user show --query id -o tsv)
 ```
+
+**Check:** the output ends with `"provisioningState": "Succeeded"` and includes `projectEndpoint`.
 
 Takes a few minutes. `eastus2` has the broadest model availability. Check your model per region before
 changing it:

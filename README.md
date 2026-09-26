@@ -28,9 +28,30 @@ No prior Foundry or AI experience needed. Not aimed at production platform desig
 - Explain how the current Foundry model and agent workflow fits together
 - Score an agent, enforce a pass/fail quality gate, and generate a release-readiness report
 
-## What you build
+## The big picture
 
-About 60 minutes in total. Times are approximate, and Module 0 depends on Azure deployment time.
+You run a few commands from your terminal. The first one creates everything in Azure. The rest call it.
+
+```mermaid
+flowchart LR
+  you["<b>You</b><br/>terminal, signed in<br/>with az login"]
+
+  subgraph rg["Azure resource group  (created by infra/main.bicep)"]
+    direction TB
+    subgraph foundry["Foundry resource: Microsoft Entra ID only, no API keys"]
+      direction TB
+      project["<b>Project</b><br/>intro-workshop<br/>your agents live here"]
+      model["<b>Model deployment</b><br/>gpt-5-mini"]
+    end
+  end
+
+  you -->|"Module 0: deploy"| rg
+  you -->|"Module 1: chat.py"| model
+  you -->|"Module 2: agent.py"| project
+  you -->|"Module 3: agentops"| project
+```
+
+## Your path
 
 | Module | Time | Objective | You leave with |
 | --- | --- | --- | --- |
@@ -39,33 +60,93 @@ About 60 minutes in total. Times are approximate, and Module 0 depends on Azure 
 | [2. Build an agent](./module-2-build-an-agent/README.md) | ~10 min | Build a named, versioned agent | An agent that remembers the last question |
 | [3. Evaluate & govern](./module-3-evaluate-and-govern/README.md) | ~25 min | Prove the agent is fit to ship | A quality gate you can put in CI |
 
-## Prerequisites
+Times are approximate, and Module 0 depends on Azure deployment time.
+
+## Key terms
+
+You will see these words throughout. Read them once now.
+
+| Term | Plain meaning |
+| --- | --- |
+| **Foundry resource** | The Azure resource that holds everything: your models, projects and settings |
+| **Project** | A workspace inside the resource. Your agents live here. Your code connects to a project |
+| **Endpoint** | The web address of your project. You set it once as `FOUNDRY_PROJECT_ENDPOINT` |
+| **Model deployment** | A model made available to call, here `gpt-5-mini` |
+| **Responses API** | How you send a prompt to a model and get an answer back |
+| **Agent** | A named, versioned definition: a model plus standing instructions |
+| **Conversation** | The thing that gives an agent memory. Reuse its ID across turns |
+| **Evaluation** | Scoring an agent's answers with a judge model |
+| **Threshold** | A pass mark for a score. Missing it fails the run with exit code 2 |
+
+## Before you start
+
+You need:
 
 - An Azure subscription where you can create resources and assign roles (**Owner** or equivalent)
-- Python 3.10+, the [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) with Bicep
-- **Windows users:** the commands are written for bash. Use [WSL2](https://learn.microsoft.com/windows/wsl/install)
-  and run everything, including `az login`, inside the WSL2 terminal. We have not tested the
-  workshop in native PowerShell.
-- About 5 minutes of deployment time and a few cents of model usage. Delete the resource group when
-  you finish (Module 0 shows how).
+- Python 3.10+ and the [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) with Bicep
+- About 5 minutes of deployment time and a few cents of model usage
+- **Windows:** the commands are bash. Use [WSL2](https://learn.microsoft.com/windows/wsl/install) and
+  run everything, including `az login`, inside the WSL2 terminal. Native PowerShell was not tested.
+
+Quick check that your tools are ready:
+
+```bash
+python3 --version   # 3.10 or higher
+az version          # prints a version, no error
+```
 
 ## Quick start
+
+Five steps. After each one there is a check, so you know it worked before moving on.
+
+**Step 1. Get the code and install.**
 
 ```bash
 git clone https://github.com/codetocloudorg/intro-to-microsoft-foundry.git
 cd intro-to-microsoft-foundry
-python -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+```
 
+Check: `pip list` shows `azure-ai-projects` 2.x.
+
+**Step 2. Sign in to Azure.**
+
+```bash
 az login
+```
+
+Check: a browser opens, you sign in, and the terminal lists your subscriptions.
+
+**Step 3. Deploy the environment.** This is the slow step, a few minutes.
+
+```bash
 az group create -n rg-foundry-workshop -l eastus2
 az deployment group create -g rg-foundry-workshop --template-file infra/main.bicep \
   --parameters principalId=$(az ad signed-in-user show --query id -o tsv)
+```
 
-export FOUNDRY_PROJECT_ENDPOINT="<projectEndpoint from the deployment output>"
+Check: the output ends with `"provisioningState": "Succeeded"` and shows a `projectEndpoint` value.
+
+**Step 4. Tell the scripts where your project is.** Copy `projectEndpoint` from the output:
+
+```bash
+export FOUNDRY_PROJECT_ENDPOINT="https://<resource>.services.ai.azure.com/api/projects/intro-workshop"
+```
+
+Check: `echo $FOUNDRY_PROJECT_ENDPOINT` prints the address.
+
+**Step 5. Run the first two modules.**
+
+```bash
 python module-1-chat-with-a-model/chat.py
 python module-2-build-an-agent/agent.py
 ```
+
+Check: Module 1 prints an answer about France. Module 2 prints `Agent created ...` and then two answers,
+the second one naming Paris. Then continue to [Module 3](./module-3-evaluate-and-govern/README.md).
+
+When you are done, delete everything: `az group delete -n rg-foundry-workshop --yes`.
 
 Authentication is `DefaultAzureCredential`. The template disables key-based access, so there are no
 API keys to leak.
